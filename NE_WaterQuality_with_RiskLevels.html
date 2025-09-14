@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Northeast India Water Quality EDA</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 2rem; text-align: center; }
+        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .alert { background: #dc3545; color: white; padding: 1rem; text-align: center; font-weight: bold; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; padding: 2rem; background: #f8f9fa; }
+        .stat { background: white; padding: 1.5rem; text-align: center; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .stat h3 { font-size: 2rem; color: #667eea; margin-bottom: 0.5rem; }
+        .section { padding: 2rem; border-bottom: 1px solid #eee; }
+        .section h2 { color: #333; margin-bottom: 1rem; border-bottom: 2px solid #667eea; padding-bottom: 0.5rem; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1rem; }
+        .chart { background: #f8f9fa; border-radius: 8px; padding: 1rem; height: 350px; }
+        .table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        .table th, .table td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #ddd; }
+        .table th { background: #667eea; color: white; }
+        .insight { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 1rem; margin: 1rem 0; border-radius: 0 4px 4px 0; }
+        .critical { background: #ffebee; border-left-color: #f44336; }
+        .risk-high { color: #dc3545; font-weight: bold; }
+        .risk-medium { color: #fd7e14; font-weight: bold; }
+        .risk-low { color: #28a745; font-weight: bold; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } .header h1 { font-size: 1.5rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌊 Northeast India Water Quality Analysis</h1>
+            <p>296 samples • 6 states • Risk assessment based on WHO standards</p>
+        </div>
+        
+        <div class="alert">
+            🚨 ALERT: 64.9% samples at risk • 60.5% exceed iron limits • Meghalaya needs urgent action (97.4% at risk)
+        </div>
+        
+        <div class="stats">
+            <div class="stat"><h3>296</h3><p>Total Samples</p></div>
+            <div class="stat"><h3>64.9%</h3><p>At Risk</p></div>
+            <div class="stat"><h3>60.5%</h3><p>Iron Issues</p></div>
+            <div class="stat"><h3>35.1%</h3><p>Safe Water</p></div>
+            <div class="stat"><h3>6</h3><p>States</p></div>
+        </div>
+        
+        <div class="section">
+            <h2>📍 Geographic Distribution</h2>
+            <div class="grid">
+                <div class="chart"><canvas id="stateChart"></canvas></div>
+                <div class="chart"><canvas id="riskChart"></canvas></div>
+            </div>
+            <div class="insight">
+                <strong>Key Points:</strong> Assam has most samples (155). Arunachal Pradesh safest (91.7%). Meghalaya most critical (97.4% at risk).
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>⚠ Risk Analysis</h2>
+            <div class="grid">
+                <div class="chart"><canvas id="overallRisk"></canvas></div>
+                <div class="chart"><canvas id="stateRisk"></canvas></div>
+            </div>
+            <table class="table">
+                <tr><th>State</th><th>Safe %</th><th>At Risk %</th><th>Priority</th></tr>
+                <tr><td>Arunachal Pradesh</td><td>91.7%</td><td>8.3%</td><td><span class="risk-low">Low</span></td></tr>
+                <tr><td>Assam</td><td>45.2%</td><td>54.8%</td><td><span class="risk-medium">Medium</span></td></tr>
+                <tr><td>Meghalaya</td><td>2.6%</td><td>97.4%</td><td><span class="risk-high">URGENT</span></td></tr>
+                <tr><td>Tripura</td><td>19.8%</td><td>80.2%</td><td><span class="risk-high">High</span></td></tr>
+                <tr><td>Mizoram</td><td>66.7%</td><td>33.3%</td><td><span class="risk-low">Low</span></td></tr>
+                <tr><td>Nagaland</td><td>66.7%</td><td>33.3%</td><td><span class="risk-low">Low</span></td></tr>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>🧪 Chemical Analysis</h2>
+            <div class="grid">
+                <div class="chart"><canvas id="ironChart"></canvas></div>
+                <div class="chart"><canvas id="complianceChart"></canvas></div>
+            </div>
+            <table class="table">
+                <tr><th>Parameter</th><th>WHO Limit</th><th>Violations</th><th>Status</th></tr>
+                <tr><td>Iron (ppm)</td><td>0.3</td><td>179 (60.5%)</td><td><span class="risk-high">Major Issue</span></td></tr>
+                <tr><td>pH</td><td>6.5-8.5</td><td>25 (8.4%)</td><td><span class="risk-medium">Moderate</span></td></tr>
+                <tr><td>Fluoride (mg/L)</td><td>1.5</td><td>0 (0%)</td><td><span class="risk-low">Safe</span></td></tr>
+                <tr><td>Arsenic (ppb)</td><td>10</td><td>1 (0.3%)</td><td><span class="risk-low">Safe</span></td></tr>
+            </table>
+            <div class="critical">
+                <strong>Critical Finding:</strong> Iron contamination is the main problem affecting 179 samples (60.5%). pH issues in 25 samples need attention.
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🎯 Recommendations</h2>
+            <div class="insight critical">
+                <h4>Immediate Actions:</h4>
+                <ul>
+                    <li><strong>Meghalaya Emergency:</strong> Install iron removal systems in all 39 locations</li>
+                    <li><strong>Tripura Priority:</strong> Address 65 moderate-risk locations</li>
+                    <li><strong>Assam Scale-up:</strong> Target 85 at-risk locations systematically</li>
+                    <li><strong>pH Correction:</strong> Install pH adjustment in 25 acidic locations</li>
+                </ul>
+            </div>
+            <div class="insight">
+                <h4>Expected Impact:</h4>
+                <p>Targeting iron contamination can improve 60.5% of samples. Focus on Meghalaya and Tripura will address highest-risk populations. pH corrections will resolve 8.4% of remaining issues.</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📊 Summary</h2>
+            <div class="critical">
+                <h4>Bottom Line:</h4>
+                <p><strong>64.9% of Northeast India water samples need intervention. Iron contamination affects 179 locations (60.5%). Meghalaya requires emergency response with 97.4% samples at risk. Systematic iron removal program can resolve majority of issues.</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple chart configurations
+        
+        // State Distribution
+        new Chart(document.getElementById('stateChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Assam (155)', 'Tripura (81)', 'Meghalaya (39)', 'Arunachal Pradesh (12)', 'Others (9)'],
+                datasets: [{
+                    data: [155, 81, 39, 12, 9],
+                    backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { title: { display: true, text: 'Sample Distribution by State' } }
+            }
+        });
+
+        // Risk Distribution
+        new Chart(document.getElementById('riskChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Safe', 'Moderate Risk', 'High Risk'],
+                datasets: [{
+                    data: [104, 185, 7],
+                    backgroundColor: ['#28a745', '#fd7e14', '#dc3545']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { title: { display: true, text: 'Overall Risk Distribution' } }
+            }
+        });
+
+        // Overall Risk Pie
+        new Chart(document.getElementById('overallRisk'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Safe (35.1%)', 'Moderate Risk (62.5%)', 'High Risk (2.4%)'],
+                datasets: [{
+                    data: [104, 185, 7],
+                    backgroundColor: ['#28a745', '#fd7e14', '#dc3545']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { title: { display: true, text: 'Risk Level Distribution' } }
+            }
+        });
+
+        // State Risk Comparison
+        new Chart(document.getElementById('stateRisk'), {
+            type: 'bar',
+            data: {
+                labels: ['Arunachal Pradesh', 'Mizoram', 'Nagaland', 'Assam', 'Tripura', 'Meghalaya'],
+                datasets: [{
+                    label: 'At Risk %',
+                    data: [8.3, 33.3, 33.3, 54.8, 80.2, 97.4],
+                    backgroundColor: ['#28a745', '#17a2b8', '#17a2b8', '#fd7e14', '#dc3545', '#8b0000']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { title: { display: true, text: 'States Ranked by Risk Level' } },
+                scales: { y: { beginAtZero: true, max: 100 } }
+            }
+        });
+
+        // Iron Analysis
+        new Chart(document.getElementById('ironChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Within WHO Limit', 'Exceeds WHO Limit'],
+                datasets: [{
+                    data: [117, 179],
+                    backgroundColor: ['#28a745', '#dc3545']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { title: { display: true, text: 'Iron Contamination (WHO Limit: 0.3 ppm)' } }
+            }
+        });
+
+        // WHO Compliance
+        new Chart(document.getElementById('complianceChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Iron Violations', 'pH Issues', 'Fluoride', 'Arsenic'],
+                datasets: [{
+                    data: [60.5, 8.4, 0, 0.3],
+                    backgroundColor: ['#dc3545', '#fd7e14', '#28a745', '#28a745']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { title: { display: true, text: 'WHO Standards Violations (%)' } },
+                scales: { y: { beginAtZero: true, max: 70 } }
+            }
+        });
+
+        console.log('Charts loaded successfully!');
+    </script>
+</body>
+</html>
